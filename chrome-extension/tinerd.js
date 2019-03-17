@@ -10,16 +10,35 @@ var Tinerd = new function(){
   this.nope=function(){act('Nope')};
   this.rewind=function(){act('Rewind')};
   this.toggle_info=function(){
-    if(close_info()==null){
+    y = close_info();
+    if(y==null){
       simulate(open_info(),'click');
       return;
     }
-    simulate(close_info(),'click');
+    simulate(y,'click');
   }
   this.open_profile=function(){
-    if(open_info()!=null){
-      simulate(open_info(),'click');
+    y = open_info();
+    if(y!=null){
+      simulate(y,'click');
     }
+  }
+  this.close_profile=function(){
+    y = close_info();
+    if(y!=null){
+      simulate(y,'click');
+    }
+  }
+  function next_photo_action(){
+    return document.querySelectorAll('div.recCard.active div.Expand.tappable-view svg[viewBox="0 0 14 23"]');
+  }
+  this.next_photo=function(){
+    this.close_profile();
+    y = next_photo_action();
+    if(y==null || y.length!=2){
+      throw "Next photo accessor not found";
+    }
+    simulate(y[1],'click');
   }
   if(!o){
     o = this;
@@ -69,19 +88,29 @@ var ProfileInfo = function(){
   var o;
   function get_title(i,k){
     j = document.querySelector('div.profileCard__header__info div span:nth-child('+i+')');
-    if(j==null && k==null){
+    if(j==null || k==null){
       Tinerd.open_profile();
       get_title(i,true);
     }
     return j.innerHTML;
   }
-  function get_current_image_url(){
-    y = document.querySelector('div.recsCardboard__cards div.recCard.active div.tappable-view div.tappable_recCard div.react-swipeable-view-container div[aria-hidden=false] div.StretchedBox');
+
+  function get_image_element(){
+    return document.querySelector('div.recsCardboard__cards div.recCard.active div.tappable-view div.tappable_recCard div.react-swipeable-view-container div[aria-hidden=false] div.StretchedBox');
+  }
+
+  function get_current_image_url(k){
+    y = get_image_element();
+    if(y==null || k==null){
+      Tinerd.close_profile();
+      y = get_image_element();
+    }
     if(y==null||y.style['backgroundImage']==null||y.style['backgroundImage'].length<4){
       return null;
     }
     return y.style['backgroundImage'].slice(4, -1).replace(/"/g, "");
   }
+
   this.name=get_title(1);
   this.age=get_title(2);
   var get_header_text = function(i) {
