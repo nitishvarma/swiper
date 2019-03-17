@@ -4,9 +4,12 @@ services:
   featureengineering:
     build: featureEngineering/
     ports:
-      - "10080:80"
+      - "80:80"
+      - "443:443"
     networks:
       - back-tier
+    volumes:
+      - /etc/letsencrypt/:/etc/letsencrypt/
     links:
       - db
       - ruleengine
